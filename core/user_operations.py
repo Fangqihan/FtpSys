@@ -79,10 +79,10 @@ def show_user_file_holder(**kwargs):
         print(''.center(20, '-'))
 
 
-def get_file_holder_size(dir):
+def get_file_holder_size(dir_name):
     """获取当前文件夹下所有文件的大小之和,不包含文件夹"""
     size = 0
-    for root, dirs, files in os.walk(dir):
+    for root, dirs, files in os.walk(dir_name):
         size += sum([getsize(join(root, name)) for name in files])
         return size
 

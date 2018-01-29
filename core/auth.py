@@ -81,8 +81,14 @@ def login(func):
                                         User.upload_dir = join(BASE_DIR, config[username]['upload_dir'])
                                         User.allowed_storage = int(config[username]['storage']) * 1024 * 1024
                                         User.username = username
+                                        if not os.path.exists(join(BASE_DIR, USER_DOWNLOAD_TEMPLATE % username)):
+                                            os.makedirs(join(BASE_DIR, USER_DOWNLOAD_TEMPLATE % username))
+                                        if not os.path.exists(join(BASE_DIR, USER_UPLOAD_TEMPLATE % username)):
+                                            os.makedirs(join(BASE_DIR, USER_UPLOAD_TEMPLATE % username))
+
                                         print('登录成功'.center(20, '-'))
-                                        return func(username=User.username,download_dir=User.download_dir,upload_dir=User.upload_dir, allowed_storage=User.allowed_storage)
+                                        return func(username=User.username,download_dir=User.download_dir,
+                                                    upload_dir=User.upload_dir, allowed_storage=User.allowed_storage)
 
                                     count += 1
                                 if count == 3:
