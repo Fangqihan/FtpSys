@@ -123,7 +123,7 @@ def run_client(**kwargs):
             elif choice == '3':
                 print()
                 print('用户已下载文件'.center(20, '-'))  # 查看用户的download目录文件
-                show_user_file_holder(type='download', dir=download_dir,            allowed_storage=allowed_storage)
+                show_user_file_holder(type='download', dir=download_dir, allowed_storage=allowed_storage)
                 input()
             elif choice == '4':
                 print()

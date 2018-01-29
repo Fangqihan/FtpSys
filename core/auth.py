@@ -12,7 +12,7 @@ class User(object):
     login_status = 0
     download_dir = ''
     upload_dir = ''
-    allowed_storage = ''
+    allowed_storage = 0
     username = ''
 
 
@@ -76,9 +76,11 @@ def login(func):
                                 while count < 3:
                                     password = input('密码>>> ').strip()
                                     if password == config[username]['password']:
+                                        # 获取对应的用户信息,并返回这些信息
                                         User.download_dir = join(BASE_DIR, config[username]['download_dir'])
                                         User.upload_dir = join(BASE_DIR, config[username]['upload_dir'])
                                         User.allowed_storage = int(config[username]['storage']) * 1024 * 1024
+                                        User.username = username
                                         print('登录成功'.center(20, '-'))
                                         return func(username=User.username,download_dir=User.download_dir,upload_dir=User.upload_dir, allowed_storage=User.allowed_storage)
 
