@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-   @Time    : 18-1-26 上午10:35
 # @Author  : QiHanFang    @Email   : qihanfang@foxmail.com
 import hashlib
-import os
-import sys
-import time
 from conf.settings import *
 
 

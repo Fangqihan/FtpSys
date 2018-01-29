@@ -4,7 +4,8 @@
 from socket import *
 from conf.settings import *
 from utils.common_func import get_file_md5
-import struct, json
+import struct
+import json
 
 
 def receive(conn):
@@ -55,8 +56,7 @@ def receive(conn):
 def transfer(conn):
     '''将文件发送给客户端'''
     while True:
-        # 接收客户端选定的文件路径
-        file_path = conn.recv(8000).decode('utf-8').strip()
+        file_path = conn.recv(8000).decode('utf-8').strip()  # 接收客户端选定的文件路径
         if file_path == CHOICE_FLAG:  # 检查是否是返回主界面命令
             print('接收到服务端返回主界面')
             break

@@ -3,8 +3,9 @@
 
 from socket import *
 from conf.settings import *
-from core.user_operations import user_select_file, show_user_file_holder, get_file_holder_size
-import json, struct
+from core.user_operations import user_select_file, show_user_file_holder, get_file_holder_size, upgrade_storage
+import json
+import struct
 from utils.common_func import get_file_md5
 from core.auth import login
 from os.path import getsize
@@ -36,7 +37,7 @@ def download(client, download_dir, allowed_storage):
         old_md5 = header_obj_dict.get('md5', '')
         # 逐行接收服务端返回的文件
         recv_size = 0
-        save_path = '%s%s' % (download_dir, filename)
+        save_path = join(download_dir, filename)
         with open(save_path, 'wb') as f:
             print()
             while recv_size < total_size:
@@ -58,7 +59,7 @@ def download(client, download_dir, allowed_storage):
 def upload(client, upload_dir):
     '''上传本地文件'''
     while True:
-        # 1.选定上传的文件
+        # 1.选定上传的文件并获取其存储路径
         file_path = user_select_file(type='push', dir=upload_dir)
         if file_path == CHOICE_FLAG:  # 判断是否返回主界面
             client.send(file_path.encode('utf8'))
@@ -103,13 +104,14 @@ def run_client(**kwargs):
     download_dir = kwargs.get('download_dir', '')
     upload_dir = kwargs.get('upload_dir', '')
     allowed_storage = kwargs.get('allowed_storage', '')
+    username = kwargs.get('username', '')
     client = socket(AF_INET, SOCK_STREAM)
     client.connect((SERVER_IP, SERVER_PORT))
     while True:
         print()
-        print('操作主界面'.center(20, '-'))
-        choice = input('1.上传\n2.下载\n3.查看已下载文件\n4.查看待上传文件\n5.退出登录\n输入操作编号>>> ').strip()
-        if choice in ['1', '2', '3', '4', '5']:
+        print('用户操作主界面'.center(20, '-'))
+        choice = input('1.上传\n2.下载\n3.查看已下载文件\n4.查看待上传文件\n5.退出登录\n6.升级存储空间\n输入操作编号>>> ').strip()
+        if choice in ['1', '2', '3', '4', '5', '6']:
             if choice == '1':
                 # 上传本地文件
                 client.send(choice.encode('utf-8'))  # 将选择信息反馈给服务器
@@ -133,6 +135,8 @@ def run_client(**kwargs):
                 if choice == 'q' or choice == 'quit':  # 退出并关闭客户端与服务端
                     client.send('5'.encode('utf8'))
                     break
+            elif choice == '6':
+                upgrade_storage(username=username, old_storage=allowed_storage)
 
     client.close()
     exit('退出')
