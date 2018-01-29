@@ -9,7 +9,7 @@ import json
 
 
 def receive(conn):
-    '''接收客户端发过来的文件'''
+    """接收客户端发过来的文件,并保存至服务器的设定的存储文件夹下"""
     while True:
         header_size_obj = conn.recv(4)
         if header_size_obj.decode('utf-8') == CHOICE_FLAG:
@@ -54,7 +54,7 @@ def receive(conn):
 
 
 def transfer(conn):
-    '''将文件发送给客户端'''
+    '''接收客户端选定的要下载的文件路径,并且将对应的文件传送给客户端'''
     while True:
         file_path = conn.recv(8000).decode('utf-8').strip()  # 接收客户端选定的文件路径
         if file_path == CHOICE_FLAG:  # 检查是否是返回主界面命令
@@ -86,7 +86,7 @@ def transfer(conn):
 
 
 def run_server():
-    '''运行服务器'''
+    """启动服务器"""
     server = socket(AF_INET, SOCK_STREAM)
     server.setsockopt(SOL_SOCKET,SO_REUSEADDR, 1)
     server.bind((SERVER_IP, SERVER_PORT))

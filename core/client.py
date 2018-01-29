@@ -12,7 +12,7 @@ from os.path import getsize
 
 
 def download(client, download_dir, allowed_storage):
-    '''从服务器下载文件'''
+    """从服务器的文件目录下选择文件下载至本地download目录下"""
     while True:
         file_path = user_select_file(type='get')  # 获取选定要下载的服务器文件的路径或其他
         if file_path == CHOICE_FLAG:  # 检查是否是返回主界面命令
@@ -57,7 +57,7 @@ def download(client, download_dir, allowed_storage):
 
 
 def upload(client, upload_dir):
-    '''上传本地文件'''
+    """从本地upload目录下选择文件上传至服务器"""
     while True:
         # 1.选定上传的文件并获取其存储路径
         file_path = user_select_file(type='push', dir=upload_dir)
@@ -100,13 +100,13 @@ def upload(client, upload_dir):
 
 @login
 def run_client(**kwargs):
-    '''启动客户端'''
+    """启动客户端,在用户登录后从conf.ini文件中获取用户的相关信息"""
+    client = socket(AF_INET, SOCK_STREAM)
+    client.connect((SERVER_IP, SERVER_PORT))
     download_dir = kwargs.get('download_dir', '')
     upload_dir = kwargs.get('upload_dir', '')
     allowed_storage = kwargs.get('allowed_storage', '')
     username = kwargs.get('username', '')
-    client = socket(AF_INET, SOCK_STREAM)
-    client.connect((SERVER_IP, SERVER_PORT))
     while True:
         print()
         print('用户操作主界面'.center(20, '-'))
@@ -134,6 +134,7 @@ def run_client(**kwargs):
                 choice = input('确认退出(q)>>> ')
                 if choice == 'q' or choice == 'quit':  # 退出并关闭客户端与服务端
                     client.send('5'.encode('utf8'))
+                    # login(run_client)()
                     break
             elif choice == '6':
                 upgrade_storage(username=username, old_storage=allowed_storage)

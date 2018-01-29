@@ -6,13 +6,18 @@ import configparser
 from os.path import join
 import os
 
-login_status = 0
-download_dir = ''
-upload_dir = ''
-allowed_storage = 0
+
+class User(object):
+    """类属性,替代全局变量"""
+    login_status = 0
+    download_dir = ''
+    upload_dir = ''
+    allowed_storage = ''
+    username = ''
 
 
 def register():
+    """新用户注册"""
     print('注册中'.center(20, '-'))
     config = configparser.ConfigParser()
     config.read(CONF_DIR)
@@ -33,6 +38,7 @@ def register():
                                 config.set(username, 'download_dir', USER_DOWNLOAD_TEMPLATE % username)
                                 config.set(username, 'upload_dir', USER_UPLOAD_TEMPLATE % username)
                                 config.set(username, 'storage',  storage)
+                                config.set(username, 'lock_status',  '0')
                                 with open(CONF_DIR, 'w') as f:
                                     config.write(f)
                                 # 创建下载和上传文件夹
@@ -43,17 +49,17 @@ def register():
                                 return
 
                             else:
-                                print('免费申请空间20-1000(M)')
+                                print('\033[1;35m 免费申请空间20-1000(M) \033[0m')
                         else:
-                            print('输入有误')
+                            print('\033[1;35m 输入有误 \033[0m')
         else:
-            print('对不起,该用户名已经被注册', end='\n\n')
+            print('\033[1;35m 对不起,该用户名已经被注册 \033[0m', end='\n\n')
 
 
 def login(func):
+    """闭包函数"""
     def inner(**kwargs):
-        global login_status, download_dir, upload_dir, allowed_storage, username
-        if not login_status:
+        if not User.login_status:
             while True:
                 choice = input('1.登录\n2.注册\n3.退出\n输入操作编号>>> ')
                 if choice == '1':
@@ -70,12 +76,11 @@ def login(func):
                                 while count < 3:
                                     password = input('密码>>> ').strip()
                                     if password == config[username]['password']:
-                                        download_dir = join(BASE_DIR, config[username]['download_dir'])
-                                        upload_dir = join(BASE_DIR, config[username]['upload_dir'])
-                                        allowed_storage = int(config[username]['storage']) * 1024 * 1024
+                                        User.download_dir = join(BASE_DIR, config[username]['download_dir'])
+                                        User.upload_dir = join(BASE_DIR, config[username]['upload_dir'])
+                                        User.allowed_storage = int(config[username]['storage']) * 1024 * 1024
                                         print('登录成功'.center(20, '-'))
-                                        return func(username=username,download_dir=download_dir, upload_dir=upload_dir,
-                                                    allowed_storage=allowed_storage)
+                                        return func(username=User.username,download_dir=User.download_dir,upload_dir=User.upload_dir, allowed_storage=User.allowed_storage)
 
                                     count += 1
                                 if count == 3:
@@ -96,10 +101,9 @@ def login(func):
                 if choice == '3':
                     exit('退出')
         else:
-            return func(username=username,download_dir=download_dir, upload_dir=upload_dir, allowed_storage=allowed_storage)
-
+            return func(username=User.username,download_dir=User.download_dir,
+                        upload_dir=User.upload_dir, allowed_storage=User.allowed_storage)
     return inner
-
 
 
 

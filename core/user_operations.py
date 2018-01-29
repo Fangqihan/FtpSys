@@ -8,7 +8,7 @@ import configparser
 
 
 def user_select_file(**kwargs):
-    '''用户选择服务端下载的文件并返回具体路径'''
+    """用户选择服务端下载的文件并返回具体路径"""
     global file_path
     file_path = ''
     if kwargs.get('type') == 'get':
@@ -65,12 +65,12 @@ def user_select_file(**kwargs):
 
 
 def show_user_file_holder(**kwargs):
+    """打印用户download和upload文件夹下文件列表以及占用容量百分比"""
     type = kwargs.get('type', '')
     file_path = kwargs.get('dir', '')
     allowed_storage = kwargs.get('allowed_storage', '')
     obj = subprocess.Popen('ls %s' % file_path, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print(obj.stdout.read().decode('utf-8'))
-
     if type == 'download':
         present_storage = get_file_holder_size(file_path)
         print('-----已占用容量{:.2f}%------'.format(present_storage / allowed_storage * 100))
@@ -80,6 +80,7 @@ def show_user_file_holder(**kwargs):
 
 
 def get_file_holder_size(dir):
+    """获取当前文件夹下所有文件的大小之和,不包含文件夹"""
     size = 0
     for root, dirs, files in os.walk(dir):
         size += sum([getsize(join(root, name)) for name in files])
@@ -87,16 +88,19 @@ def get_file_holder_size(dir):
 
 
 def get_file_names(dir_path):
+    """获取当前文件夹下的文件名称列表,用于判断输入的名称是否在当前文件夹下的文件名称"""
     for root, dirs, files in os.walk(dir_path):
         return files
 
 
 def get_holders_names(dir_path):
+    """获取当前文件夹下的文件夹名称列表,用于判断输入的名称是否在当前文件夹下的文件夹名称"""
     for root, dirs, files in os.walk(dir_path):
         return dirs
 
 
 def upgrade_storage(**kwargs):
+    """升级当前用户下载目录空间大小"""
     config = configparser.ConfigParser()
     config.read(CONF_DIR)
     username = kwargs.get('username', '')
