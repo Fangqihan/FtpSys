@@ -25,6 +25,7 @@ def download(client, download_dir, allowed_storage):
             print()
             print('>>>\033[1;35m 下载失败,您的存储空间不足 \033[0m!')
             return
+
         client.send(file_path.encode('utf-8'))  # 向服务端发送选定的文件路径
 
         header_size_obj = client.recv(4)  # 接收header长度定长pack
@@ -59,15 +60,18 @@ def download(client, download_dir, allowed_storage):
 def upload(client, upload_dir):
     """从本地upload目录下选择文件上传至服务器"""
     while True:
-        # 1.选定上传的文件并获取其存储路径
+        # 1. 选定上传的文件并获取其存储路径
         file_path = user_select_file(type='push', dir=upload_dir)
         if file_path == CHOICE_FLAG:  # 判断是否返回主界面
             client.send(file_path.encode('utf8'))
             return
+
+        print('file_path=================', file_path)
         file_path = file_path.strip()
         filename = file_path.split('/')[-1]
         file_size = os.path.getsize(file_path)
-        # 2.制作文件的header信息
+
+        # 2. 制作文件的header信息
         header = {
             'filename': filename,
             'md5': get_file_md5(file_path),
@@ -75,12 +79,14 @@ def upload(client, upload_dir):
         }
         header_obj = json.dumps(header)  # 序列化成str类型
         header_obj_bytes = header_obj.encode('utf-8')
-        # 3.将报头字节大小制作成定长字节串并发送给客户端
+
+        # 3. 将报头字节大小制作成定长字节串并发送给客户端
         header_size_obj = struct.pack('i', len(header_obj_bytes))
 
         client.send(header_size_obj)
         client.send(header_obj_bytes)
-        # 6.读取客户选定的文件并逐行发送给客户端
+
+        # 6.读取客户选定的文件并逐行发送给服务端
         with open(file_path, 'rb') as f:
             for line in f:
                 client.send(line)
@@ -103,6 +109,7 @@ def run_client(**kwargs):
     """启动客户端,在用户登录后从conf.ini文件中获取用户的相关信息"""
     client = socket(AF_INET, SOCK_STREAM)
     client.connect((SERVER_IP, SERVER_PORT))
+    # 获取到当前用户的所有相关信息
     download_dir = kwargs.get('download_dir', '')
     upload_dir = kwargs.get('upload_dir', '')
     allowed_storage = kwargs.get('allowed_storage', '')
@@ -116,26 +123,30 @@ def run_client(**kwargs):
                 # 上传本地文件
                 client.send(choice.encode('utf-8'))  # 将选择信息反馈给服务器
                 upload(client, upload_dir)
+
             elif choice == '2':
                 # 下载服务器文件
                 client.send(choice.encode('utf-8'))
                 download(client, download_dir, allowed_storage)
+
             elif choice == '3':
                 print()
                 print('用户已下载文件'.center(20, '-'))  # 查看用户的download目录文件
                 show_user_file_holder(type='download', dir=download_dir, allowed_storage=allowed_storage)
                 input()
+
             elif choice == '4':
                 print()
                 print('用户待上传文件'.center(20, '-'))  # 查看用户的upload目录的可上传文件
                 show_user_file_holder(type='upload',dir=upload_dir)
                 input()
+
             elif choice == '5':
                 choice = input('确认退出(q)>>> ')
                 if choice == 'q' or choice == 'quit':  # 退出并关闭客户端与服务端
                     client.send('5'.encode('utf8'))
-                    # login(run_client)()
                     break
+
             elif choice == '6':
                 upgrade_storage(username=username, old_storage=allowed_storage)
 

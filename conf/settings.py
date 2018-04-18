@@ -23,5 +23,6 @@ DEBUG = True
 
 CHOICE_FLAG = 'q'
 
+# 设定用户上传文件和下载文件的模板路径, 用户文件夹以用户名命名,先用%s,以后待替换成username
 USER_DOWNLOAD_TEMPLATE = join(BASE_DIR, 'database/client/%s/download/')
 USER_UPLOAD_TEMPLATE = join(BASE_DIR, 'database/client/%s/upload/')
